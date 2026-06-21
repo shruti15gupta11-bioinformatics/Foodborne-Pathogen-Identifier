@@ -1,0 +1,46 @@
+def read_fasta(filename):
+    sequences = {}
+    current_header = ""
+
+    with open(filename, "r") as file:
+        for line in file:
+            line = line.strip()
+
+            if line.startswith(">"):
+                current_header = line[1:]
+                sequences[current_header] = ""
+            else:
+                sequences[current_header] += line
+
+    return sequences
+
+
+def calculate_similarity(seq1, seq2):
+    matches = 0
+
+    for a, b in zip(seq1, seq2):
+        if a == b:
+            matches += 1
+
+    return (matches / min(len(seq1), len(seq2))) * 100
+
+
+pathogens = read_fasta("pathogens.fasta")
+
+with open("sample_sequence.txt", "r") as file:
+    input_seq = file.read().strip()
+
+best_match = ""
+highest_score = 0
+
+for pathogen, sequence in pathogens.items():
+    score = calculate_similarity(input_seq, sequence)
+
+    print(f"{pathogen}: {score:.2f}%")
+
+    if score > highest_score:
+        highest_score = score
+        best_match = pathogen
+
+print("\nMost likely pathogen:", best_match)
+print(f"Similarity Score: {highest_score:.2f}%")
